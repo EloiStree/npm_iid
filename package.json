@@ -1,0 +1,26 @@
+{
+  "name": "iid42",
+  "version": "2025.1.131527",
+  "description": "Index Integer Date (IID) is a transport format used to allow remote control through NTP and integers on a shared server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EloiStree/npm_iid.git"
+  },
+  "keywords": [
+    "IID"
+  ],
+  "author": "Eloi Stree",
+  "license": "Beerware",
+  "bugs": {
+    "url": "https://github.com/EloiStree/npm_iid/issues"
+  },
+  "homepage": "https://github.com/EloiStree/npm_iid#readme",
+  "dependencies": {
+    "ntp-client": "^0.5.3",
+    "ws": "^8.18.0"
+  }
+}
