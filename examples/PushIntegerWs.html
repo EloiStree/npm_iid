@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IID Utility WebSocket Example</title>
+
+    <style>
+        body {
+            background-color: #000000;
+            color: #00ff00;
+        }
+        
+        a {
+            color: #0a7a00;
+        }
+
+        button {
+            background-color: #000000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 3px;
+            margin: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const wsManager = new IIDWebSocketConnection('ws://apint.ddns.net:3617');
+
+            const sendRandomIntegerLoop = async () => {
+                while (true) {
+                    const player_index = 3;
+                    const randomInteger = 0; //IIDUtility.getRandomIntegerIntMax();
+                    if (wsManager.isWebSocketConnected()) {
+                        var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(player_index, randomInteger, 50);
+                        wsManager.ws.send(bytes);
+                    }
+                    console.log("Offset:" + IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds());
+                    console.log(`Sent I: ${randomInteger}`);
+                    await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds
+                }
+            };
+
+            sendRandomIntegerLoop();
+
+            const pushRandomInteger = async () => {
+                const randomInteger = IIDUtility.getRandomIntegerIntMax();
+                if (wsManager.isWebSocketConnected()) {
+                    var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(0, randomInteger, 50);
+                    wsManager.ws.send(bytes);
+                }
+                console.log(`Sent I: ${randomInteger}`);
+            }
+            const buttonsR = document.querySelectorAll('.PushRandom');
+
+            buttonsR.forEach(button => {
+                button.addEventListener('click', () => pushRandomInteger());
+            });
+
+
+            const pushRandomIntegerInLabel = async (button) => {
+                const label = button.textContent;
+                //Split label with ',' ' '
+                const labelArray = label.split(/,| /);
+                let index = 0;
+                let integer = 0;
+                let milliseconds = 50;
+                if (labelArray.length >= 3) {
+                    index = parseInt(labelArray[0]);
+                    integer = parseInt(labelArray[1]);
+                    milliseconds = parseInt(labelArray[2]);
+                } else if (labelArray.length >= 2) {
+                    index = parseInt(labelArray[0]);
+                    integer = parseInt(labelArray[1]);
+                } else if (labelArray.length >= 1) {
+                    index = parseInt(labelArray[0]);
+                }
+
+                if (wsManager.isWebSocketConnected()) {
+                    var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(index, integer, milliseconds);
+                    wsManager.ws.send(bytes);
+                }
+                console.log(`Sent I: ${label}`);
+            }
+
+            const buttons = document.querySelectorAll('.PushButtonInt');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => pushRandomIntegerInLabel(button));
+            });
+
+            // Every 1 second update the timestamp and offset
+            setInterval(() => {
+                document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
+                document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
+            }, 1000);
+
+        });
+    </script>
+</head>
+<body>
+    <h1>IID Utility WebSocket Example</h1>
+    <p id="TIMESTAMP">TIMESTAMP</p>
+    <p id="OFFSET">OFFSET</p>
+
+    <button class="PushRandom">Send Random Integer</button>
+
+    <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
+        <button class="PushButtonInt">42</button>
+        <button class="PushButtonInt">2501</button>
+        <button class="PushButtonInt">1</button>
+        <button class="PushButtonInt">2</button>
+        <button class="PushButtonInt">3</button>
+        <button class="PushButtonInt">4</button>
+        <button class="PushButtonInt">5</button>
+        <button class="PushButtonInt">6</button>
+        <button class="PushButtonInt">7</button>
+        <button class="PushButtonInt">8</button>
+        <button class="PushButtonInt">9</button>
+        <button class="PushButtonInt">0</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
+        <button class="PushButtonInt">0 42</button>
+        <button class="PushButtonInt">1 2501</button>
+        <button class="PushButtonInt">2 1</button>
+        <button class="PushButtonInt">4 2</button>
+        <button class="PushButtonInt">4 3</button>
+        <button class="PushButtonInt">5 4</button>
+        <button class="PushButtonInt">6 5</button>
+        <button class="PushButtonInt">7 6</button>
+        <button class="PushButtonInt">8 7</button>
+        <button class="PushButtonInt">9 8</button>
+        <button class="PushButtonInt">0 9</button>
+        <button class="PushButtonInt">0 0</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
+        <button class="PushButtonInt">0 45 0</button>
+        <button class="PushButtonInt">1 45 50 </button>
+        <button class="PushButtonInt">2 45 200</button>
+        <button class="PushButtonInt">4 45 500</button>
+        <button class="PushButtonInt">4 45 1000 </button>
+        <button class="PushButtonInt">5 45 2000</button>
+        <button class="PushButtonInt">6 45 5000</button>
+        <button class="PushButtonInt">7 45 10000</button>
+        <button class="PushButtonInt">8 45 20000</button>
+        <button class="PushButtonInt">9 45 30000</button>
+        <button class="PushButtonInt">10 45 60000</button>
+        <button class="PushButtonInt">11 45 300000</button>
+    </div>
+</body>
+</html>
