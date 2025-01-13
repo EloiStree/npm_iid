@@ -10,6 +10,8 @@
         body {
             background-color: #000000;
             color: #00ff00;
+            margin: 20px;
+            padding: 20px;
         }
         
         a {
@@ -58,7 +60,12 @@
                 }
                 console.log(`Sent I: ${randomInteger}`);
             }
-          
+            const buttonsR = document.querySelectorAll('.PushRandom');
+
+            buttonsR.forEach(button => {
+                button.addEventListener('click', () => pushRandomInteger());
+            });
+
 
             const pushRandomIntegerInLabel = async (button) => {
                 const label = button.textContent;
@@ -84,33 +91,14 @@
                 }
                 console.log(`Sent I: ${label}`);
             }
-            const buttonsR = document.querySelectorAll('.PushRandom');
-
-                 buttonsR.forEach(button => {
-                    button.addEventListener('click', () => pushRandomInteger());
-            });
 
             const buttons = document.querySelectorAll('.PushButtonInt');
-                    buttons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        pushRandomIntegerInLabel(this);
-                });
-            });
-
-            setInterval(() => {
-                const buttonsR = document.querySelectorAll('.PushRandom');
-
-                buttonsR.forEach(button => {
-                button.addEventListener('click', () => pushRandomInteger());
-                });
-
-                const buttons = document.querySelectorAll('.PushButtonInt');
-                buttons.forEach(button => {
+            buttons.forEach(button => {
                 button.addEventListener('click', function() {
                     pushRandomIntegerInLabel(this);
                 });
-                });
-            }, 15000);
+            });
+            
             // Every 1 second update the timestamp and offset
             setInterval(() => {
                 document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
@@ -122,7 +110,9 @@
 </head>
 <body>
     <h1>IID Utility WebSocket Example</h1>
-    <p> THIS PAGE USE A UNSECURE WEBSOCKET TO WORKS YOU NEED TO ALLOWS IT IN THE MENU OF YOUR BROWSER</p>
+    <p>This page uses an unsecured WebSocket. You need to allow it in your browser's settings.</p>
+    <p>For more information, visit: <a href="https://github.com/EloiStree/IID/issues/2">GitHub Issue</a></p>
+    <p>(Buttons don't work on Firefox. I'm not sure why, as I am a beginner in JavaScript.)</p>
 
     <p id="TIMESTAMP">TIMESTAMP</p>
     <p id="OFFSET">OFFSET</p>
