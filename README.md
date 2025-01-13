@@ -4,4 +4,6 @@ IID & 🍺.io: https://buymeacoffee.com/apintio - https://github.com/EloiStree/I
 --------------------------------------
 
 # npm_iid
-Representation of an IID in Javascript code for tamper monkey or static javascript page.
+
+Index Integer Date (IID) is a transport format used to allow remote control through NTP and integers on a shared server.
+
