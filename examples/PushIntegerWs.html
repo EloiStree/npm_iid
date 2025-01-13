@@ -92,7 +92,9 @@
 
             const buttons = document.querySelectorAll('.PushButtonInt');
             buttons.forEach(button => {
-                button.addEventListener('click', () => pushRandomIntegerInLabel(button));
+                button.addEventListener('click', function() {
+                    pushRandomIntegerInLabel(this);
+                });
             });
 
             // Every 1 second update the timestamp and offset
@@ -106,6 +108,8 @@
 </head>
 <body>
     <h1>IID Utility WebSocket Example</h1>
+    <p> THIS PAGE USE A UNSECURE WEBSOCKET TO WORKS YOU NEED TO ALLOWS IT IN THE MENU OF YOUR BROWSER</p>
+
     <p id="TIMESTAMP">TIMESTAMP</p>
     <p id="OFFSET">OFFSET</p>
 
