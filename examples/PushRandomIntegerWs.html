@@ -18,7 +18,14 @@
 </head>
 <body>
     <h1>IID Utility WebSocket Example</h1>
-    <script src="https://cdn.jsdelivr.net/npm/iid42"></script>
+
+    <!-- WebSocket connection status 
+    
+    <script src="../index.js"></script>
+    
+    -->
+   <script src="https://cdn.jsdelivr.net/npm/iid42"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const wsManager = new IIDWebSocketConnection('ws://apint.ddns.net:3617');
@@ -28,8 +35,10 @@
                     const player_index = 3;
                     const randomInteger = IIDUtility.getRandomIntegerIntMax();
                     if (wsManager.isWebSocketConnected()) {
-                        wsManager.sendIndexIntegerNowRelayMilliseconds(player_index, randomInteger, 50);
+                        var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(player_index, randomInteger, 50);
+                        wsManager.ws.send(bytes);
                     }
+                    console.log("Offset:"+ IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds())
                     console.log(`Sent I: ${randomInteger}`);
                     await new Promise(resolve => setTimeout(resolve, 4000));
                 }
@@ -37,6 +46,7 @@
 
             sendRandomInteger();
         });
+    </script>
     </script>
 </body>
 </html>
