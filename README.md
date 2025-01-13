@@ -18,4 +18,9 @@ What is exactly an IID ?
 [https://github.com/EloiStree/IID](https://github.com/EloiStree/IID)    
 
 
+[https://eloistree.github.io/npm_iid42/examples/PushIntegerWs.html](https://eloistree.github.io/npm_iid42/examples/PushIntegerWs.html)
+```
+<script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+```
+
 _WARNING: I am not a javascript developer 😉_
