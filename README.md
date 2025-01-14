@@ -18,4 +18,8 @@ What is exactly an IID ?
 [https://github.com/EloiStree/IID](https://github.com/EloiStree/IID)    
 
 
+```
+<script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+```
+
 _WARNING: I am not a javascript developer 😉_
