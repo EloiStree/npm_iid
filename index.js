@@ -13,6 +13,7 @@
 
 // Utility class for handling byte manipulations
 class IIDUtility {
+    static checkVersion="2025.1.150200";
     static defaultGlobalNtpOffsetInMilliseconds = 0;
     static useLog = false;
     static isTextIpv4(serverName) {
@@ -255,6 +256,7 @@ class IIDWebSocketConnection {
     setListenerIndexDate(callback) {
         this.onIndexDateReceived = callback;
     }
+
     setListenerIndexIntegerDate(callback) {
         this.onIndexIntegerDateReceived = callback;
     }

@@ -33,10 +33,13 @@
 
 
             
-        <!-- 
-        <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+        <!--
+        //  COPY THE NPM OR THE LOCAL BASED ON YOUR NEEDS
+            <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+            <script src="../index.js"></script>
         -->
-        <script src="../index.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
         <script>
 
         IIDUtility.useLog = false;
@@ -125,8 +128,9 @@
 
             // Update the timestamp and offset every second
             setInterval(() => {
-            document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
-            document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
+                document.getElementById("IIDVERSION").textContent = `Version: ${IIDUtility.getVersion()}`;
+                document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
+                document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
             }, 1000);
         });
         </script>
@@ -141,6 +145,7 @@
     <p>For more information, visit: <a href="https://github.com/EloiStree/IID/issues/2">GitHub Issue</a></p>
     <p>(Buttons don't work on Firefox. I'm not sure why, as I am a beginner in JavaScript.)</p>
 
+    <p id="IIDVERSION">VERSION</p>
     <p id="TIMESTAMP">TIMESTAMP</p>
     <p id="OFFSET">OFFSET</p>
     <h2>IID Echo</h2>

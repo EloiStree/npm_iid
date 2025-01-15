@@ -1,6 +1,6 @@
 {
   "name": "iid42",
-  "version": "2025.1.140211",
+  "version": "2025.1.140212",
   "description": "Index Integer Date (IID) is a transport format used to allow remote control through NTP and integers on a shared server.",
   "main": "index.js",
   "scripts": {
