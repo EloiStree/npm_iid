@@ -5,26 +5,16 @@
 //https://stackoverflow.com/questions/19059580/browser-uncaught-referenceerror-require-is-not-defined
 
 
-
-
-
-
 // const { Buffer } = require('buffer');  // Buffer polyfill for browser
 // const fetch = require('node-fetch');  // Fetch polyfill for browser
-
 // WebSocket is natively supported in browsers, no need for 'ws' import
-
 // ntp-client replacement (example using worldtimeapi)
-
-
-
-
 
 
 // Utility class for handling byte manipulations
 class IIDUtility {
     static defaultGlobalNtpOffsetInMilliseconds = 0;
-
+    static useLog = false;
     static isTextIpv4(serverName) {
         const pattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
         return pattern.test(serverName);
@@ -43,33 +33,37 @@ class IIDUtility {
         return this.defaultGlobalNtpOffsetInMilliseconds;
     }
 
-    
-
     static bytesToInt(buffer) {
-        return buffer.readInt32LE(0);
+        const view = new DataView(buffer.buffer);
+        return view.getInt32(0, true);
     }
 
     static bytesToIndexInteger(buffer) {
+        const view = new DataView(buffer.buffer);
         return {
-            index: buffer.readInt32LE(0),
-            value: buffer.readInt32LE(4),
+            index: view.getInt32(0, true),
+            value: view.getInt32(4, true),
         };
     }
 
     static bytesToIndexDate(buffer) {
+        const view = new DataView(buffer.buffer);
         return {
-            index: buffer.readInt32LE(0),
-            date: buffer.readBigUInt64LE(4),
+            index: view.getInt32(0, true),
+            date: view.getBigUint64(4, true),
         };
     }
 
     static bytesToIndexIntegerDate(buffer) {
+        const view = new DataView(buffer.buffer);
         return {
-            index: buffer.readInt32LE(0),
-            value: buffer.readInt32LE(4),
-            date: buffer.readBigUInt64LE(8),
+            index: view.getInt32(0, true),
+            value: view.getInt32(4, true),
+            date: view.getBigUint64(8, true),
         };
     }
+
+
     static indexIntegerDateToBytes(index, value, date) {
         const indexBytes = new Uint8Array(new Int32Array([index]).buffer);
         const valueBytes = new Uint8Array(new Int32Array([value]).buffer);
@@ -107,8 +101,10 @@ class IIDUtility {
     static indexIntegerNowRelayMillisecondsToBytes(index, value, delayInMilliseconds) {
         var adjustedTimeMilliseconds = this.getDateTimeNowNtpMsUTC();
         adjustedTimeMilliseconds += delayInMilliseconds;
-        console.log(`IID: ${index}, ${value}, ${adjustedTimeMilliseconds}`);
-        console.log(`Secnonds: ${adjustedTimeMilliseconds/1000}`);
+        if(IIDUtility.useLog)
+            console.log(`IID: ${index}, ${value}, ${adjustedTimeMilliseconds}`);
+        if(IIDUtility.useLog)
+            console.log(`Secnonds: ${adjustedTimeMilliseconds/1000}`);
         return this.indexIntegerDateToBytes(index, value, adjustedTimeMilliseconds);
     }
 
@@ -182,9 +178,11 @@ class IIDUtility {
             try {
                 const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
                 const data = await response.json();
+                if(IIDUtility.useLog)
                 console.log('Unix Time from WorldTimeAPI:', data.unixtime);
                 return data.unixtime; // Unix time in seconds
             } catch (error) {
+                if(IIDUtility.useLog)
                 console.error('Error fetching time:', error);
             }
             await new Promise(resolve => setTimeout(resolve, 3000));  // Retry every second
@@ -219,7 +217,7 @@ class IIDUtility {
                 console.error('Failed to fetch Unix time. Cannot update timestamps.');
                 return;
             }
-
+            if(IIDUtility.useLog)
             console.log('Unix Time:', unixTime);
 
             // Get current timestamp on the computer
@@ -228,9 +226,10 @@ class IIDUtility {
             // Calculate the offset in milliseconds
             const offsetMilliseconds = currentTime - unixTime * 1000; // Convert unixTime (seconds) to milliseconds
             this.defaultGlobalNtpOffsetInMilliseconds = offsetMilliseconds;
-            
+            if(IIDUtility.useLog)
             console.log('Offset in milliseconds:', offsetMilliseconds);
         } catch (error) {
+            if(IIDUtility.useLog)
             console.error('Error updating timestamps:', error);
         }
     }
@@ -240,11 +239,43 @@ class IIDUtility {
 class IIDWebSocketConnection {
     constructor(url) {
         this.url = url;
+        this.onIntegerReceived = this.logInteger;
+        this.onIndexIntegerReceived = this.logIndexInteger;
+        this.onIndexDateReceived = this.logIndexDate;
+        this.onIndexIntegerDateReceived = this.logIndexIntegerDate;
         this.connect();
     }
 
-    
-      
+    setListenerInteger(callback) {
+        this.onIntegerReceived = callback;
+    }
+    setListenerIntegerIndex(callback) {
+        this.onIndexIntegerReceived = callback;
+    }
+    setListenerIndexDate(callback) {
+        this.onIndexDateReceived = callback;
+    }
+    setListenerIndexIntegerDate(callback) {
+        this.onIndexIntegerDateReceived = callback;
+    }
+
+    logInteger(value){
+        if(IIDUtility.useLog)
+        console.log(`I: ${value}`);
+    }
+    logIndexInteger(index, value){
+        if(IIDUtility.useLog)
+        console.log(`II: ${index}, ${value}`);
+    }
+    logIndexDate(index, date){
+        if(IIDUtility.useLog)
+        console.log(`ID: ${index}, ${date}`);
+    }
+    logIndexIntegerDate(index, value, date){
+
+        if(IIDUtility.useLog)
+                    console.log(`IID: ${index}, ${value}, ${date}`);
+    }
 
     sendInteger(value) {
         const buffer = IIDUtility.integerToBytes(value);
@@ -255,6 +286,23 @@ class IIDWebSocketConnection {
         return this.ws.readyState === WebSocket.OPEN;
     }
 
+    notifyReceived(data) {
+        // Handle different byte length cases
+        if (data.byteLength === 4) {
+            const value = IIDUtility.bytesToInt(data);
+            this.onIntegerReceived?.(value);
+        } else if (data.byteLength === 8) {
+            const { index, value } = IIDUtility.bytesToIndexInteger(data);
+            this.onIndexIntegerReceived?.(index, value);
+        } else if (data.byteLength === 12) {
+            const { index, date } = IIDUtility.bytesToIndexDate(data);
+            this.onIndexDateReceived?.(index, date);
+        } else if (data.byteLength === 16) {
+            const { index, value, date } = IIDUtility.bytesToIndexIntegerDate(data);
+            this.onIndexIntegerDateReceived?.(index, value, date);
+        }
+    }
+
     connect() {
         this.ws = new WebSocket(this.url);
 
@@ -262,13 +310,28 @@ class IIDWebSocketConnection {
             console.log('Connected to WebSocket server');
         };
 
+
+
         this.ws.onmessage = (event) => {
             const data = event.data;
-            console.log('Received:', data);
-            // Handle different byte length cases
-            if (data.byteLength === 4) {
-                console.log('Received I:', IIDUtility.bytesToInt(data));
-            } 
+            let byteInBlob = null;
+            if (data instanceof Blob) {
+                // Convert Blob to ArrayBuffer
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const arrayBuffer = reader.result;
+                    byteInBlob = new Uint8Array(arrayBuffer);
+        
+                    this.notifyReceived(byteInBlob);
+                };
+                reader.readAsArrayBuffer(data);
+            } else if (data instanceof ArrayBuffer) {
+                byteInBlob = new Uint8Array(data);
+        
+                this.notifyReceived(byteInBlob);
+            } else {
+                console.error("Unexpected data type:", typeof data);
+            }
         };
 
         this.ws.onclose = () => {
@@ -297,6 +360,7 @@ class CodeDemoPingRandomIntegerNow {
                 if (wsManager.isWebSocketConnected()) {
                     const bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(player_index,randomInteger,50);  // sending random integer
                     wsManager.ws.send(bytes);
+                    if(IIDUtility.useLog)
                     console.log(`Sent Bytes: ${bytes}`);
                 }
                 await new Promise(resolve => setTimeout(resolve, 4000));  // Wait 4 seconds before sending another

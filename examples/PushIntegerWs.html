@@ -31,84 +31,111 @@
         }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const wsManager = new IIDWebSocketConnection('ws://apint.ddns.net:3617');
 
+            
+        <!-- 
+        <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+        -->
+        <script src="../index.js"></script>
+        <script>
+
+        IIDUtility.useLog = false;
+        // Callback function to update the displayed index, integer, and date
+        const callback = (index, integer, date) => {
+            time = IIDUtility.getDateTimeNowNtpMsUTC();
+            document.getElementById("DateReceivedBack").textContent = `Back Date: ${time}`;
+            document.getElementById("IndexReceived").textContent = `Index: ${index}`;
+            document.getElementById("IntegerReceived").textContent = `Integer: ${integer}`;
+            document.getElementById("DateReceived").textContent = `Send Date: ${date}`;
+            ping = BigInt(time) - BigInt(date) 
+            document.getElementById("Ping").textContent = `Ping: ${ping}`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize WebSocket connection
+            let wsManager = new IIDWebSocketConnection('ws://apint.ddns.net:3617');
+            wsManager.setListenerIndexIntegerDate(callback);
+
+            // Function to send a random integer every 30 seconds
             const sendRandomIntegerLoop = async () => {
-                while (true) {
-                    const player_index = 3;
-                    const randomInteger = 0; //IIDUtility.getRandomIntegerIntMax();
-                    if (wsManager.isWebSocketConnected()) {
-                        var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(player_index, randomInteger, 50);
-                        wsManager.ws.send(bytes);
-                    }
-                    console.log("Offset:" + IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds());
-                    console.log(`Sent I: ${randomInteger}`);
-                    await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds
+            while (true) {
+                const player_index = 3;
+                const randomInteger = 0;
+                if (wsManager.isWebSocketConnected()) {
+                var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(player_index, randomInteger, 50);
+                wsManager.ws.send(bytes);
                 }
+                await new Promise(resolve => setTimeout(resolve, 30000));
+            }
             };
 
             sendRandomIntegerLoop();
 
+            // Function to send a random integer when the button is clicked
             const pushRandomInteger = async () => {
-                const randomInteger = IIDUtility.getRandomIntegerIntMax();
-                if (wsManager.isWebSocketConnected()) {
-                    var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(0, randomInteger, 50);
-                    wsManager.ws.send(bytes);
-                }
-                console.log(`Sent I: ${randomInteger}`);
+            const randomInteger = IIDUtility.getRandomIntegerIntMax();
+            if (wsManager.isWebSocketConnected()) {
+                var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(0, randomInteger, 50);
+                wsManager.ws.send(bytes);
             }
-            const buttonsR = document.querySelectorAll('.PushRandom');
+            if (IIDUtility.useLog)
+                console.log(`Sent I: ${randomInteger}`);
+            };
 
+            // Add event listener to the "PushRandom" button
+            const buttonsR = document.querySelectorAll('.PushRandom');
             buttonsR.forEach(button => {
-                button.addEventListener('click', () => pushRandomInteger());
+            button.addEventListener('click', () => pushRandomInteger());
             });
 
-
+            // Function to send integer values based on button label
             const pushRandomIntegerInLabel = async (button) => {
-                const label = button.textContent;
-                //Split label with ',' ' '
-                const labelArray = label.split(/,| /);
-                let index = 0;
-                let integer = 0;
-                let milliseconds = 50;
-                if (labelArray.length >= 3) {
-                    index = parseInt(labelArray[0]);
-                    integer = parseInt(labelArray[1]);
-                    milliseconds = parseInt(labelArray[2]);
-                } else if (labelArray.length >= 2) {
-                    index = parseInt(labelArray[0]);
-                    integer = parseInt(labelArray[1]);
-                } else if (labelArray.length >= 1) {
-                    index = parseInt(labelArray[0]);
-                }
+            const label = button.textContent;
+            const labelArray = label.split(/,| /);
+            let index = 0;
+            let integer = 0;
+            let milliseconds = 50;
 
-                if (wsManager.isWebSocketConnected()) {
-                    var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(index, integer, milliseconds);
-                    wsManager.ws.send(bytes);
-                }
-                console.log(`Sent I: ${label}`);
+            if (labelArray.length >= 3) {
+                index = parseInt(labelArray[0]);
+                integer = parseInt(labelArray[1]);
+                milliseconds = parseInt(labelArray[2]);
+            } else if (labelArray.length >= 2) {
+                index = parseInt(labelArray[0]);
+                integer = parseInt(labelArray[1]);
+            } else if (labelArray.length >= 1) {
+                index = parseInt(labelArray[0]);
             }
 
+            if (wsManager.isWebSocketConnected()) {
+                var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(index, integer, milliseconds);
+                wsManager.ws.send(bytes);
+            }
+            if (IIDUtility.useLog)
+            console.log(`Sent I: ${label}`);
+            };
+
+            // Add event listener to all buttons with class "PushButtonInt"
             const buttons = document.querySelectorAll('.PushButtonInt');
             buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    pushRandomIntegerInLabel(this);
-                });
+            button.addEventListener('click', function() {
+                pushRandomIntegerInLabel(this);
             });
-            
-            // Every 1 second update the timestamp and offset
-            setInterval(() => {
-                document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
-                document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
-            }, 1000);
+            });
 
+            // Update the timestamp and offset every second
+            setInterval(() => {
+            document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
+            document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
+            }, 1000);
         });
-    </script>
+        </script>
+
+
+
 </head>
 <body>
+    
     <h1>IID Utility WebSocket Example</h1>
     <p>This page uses an unsecured WebSocket. You need to allow it in your browser's settings.</p>
     <p>For more information, visit: <a href="https://github.com/EloiStree/IID/issues/2">GitHub Issue</a></p>
@@ -116,51 +143,62 @@
 
     <p id="TIMESTAMP">TIMESTAMP</p>
     <p id="OFFSET">OFFSET</p>
+    <h2>IID Echo</h2>
+    <p id="IndexReceived">0</p>
+    <p id="IntegerReceived">0</p>
+    <p id="DateReceived">0</p>
+    <p id="DateReceivedBack">0</p>
+    <p id="Ping">0</p>
 
-    <button class="PushRandom">Send Random Integer</button>
+
+
+    <button type="button" class="PushRandom" onclick="">Send Random Integer</button>
 
     <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
-        <button class="PushButtonInt">42</button>
-        <button class="PushButtonInt">2501</button>
-        <button class="PushButtonInt">1</button>
-        <button class="PushButtonInt">2</button>
-        <button class="PushButtonInt">3</button>
-        <button class="PushButtonInt">4</button>
-        <button class="PushButtonInt">5</button>
-        <button class="PushButtonInt">6</button>
-        <button class="PushButtonInt">7</button>
-        <button class="PushButtonInt">8</button>
-        <button class="PushButtonInt">9</button>
-        <button class="PushButtonInt">0</button>
+        <button type="button" class="PushButtonInt">42</button>
+        <button type="button" class="PushButtonInt">2501</button>
+        <button type="button" class="PushButtonInt">1</button>
+        <button type="button" class="PushButtonInt">2</button>
+        <button type="button" class="PushButtonInt">3</button>
+        <button type="button" class="PushButtonInt">4</button>
+        <button type="button" class="PushButtonInt">5</button>
+        <button type="button" class="PushButtonInt">6</button>
+        <button type="button" class="PushButtonInt">7</button>
+        <button type="button" class="PushButtonInt">8</button>
+        <button type="button" class="PushButtonInt">9</button>
+        <button type="button" class="PushButtonInt">0</button>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
-        <button class="PushButtonInt">0 42</button>
-        <button class="PushButtonInt">1 2501</button>
-        <button class="PushButtonInt">2 1</button>
-        <button class="PushButtonInt">4 2</button>
-        <button class="PushButtonInt">4 3</button>
-        <button class="PushButtonInt">5 4</button>
-        <button class="PushButtonInt">6 5</button>
-        <button class="PushButtonInt">7 6</button>
-        <button class="PushButtonInt">8 7</button>
-        <button class="PushButtonInt">9 8</button>
-        <button class="PushButtonInt">0 9</button>
-        <button class="PushButtonInt">0 0</button>
+        <button type="button" class="PushButtonInt">0 42</button>
+        <button type="button" class="PushButtonInt">1 2501</button>
+        <button type="button" class="PushButtonInt">2 1</button>
+        <button type="button" class="PushButtonInt">4 2</button>
+        <button type="button" class="PushButtonInt">4 3</button>
+        <button type="button" class="PushButtonInt">5 4</button>
+        <button type="button" class="PushButtonInt">6 5</button>
+        <button type="button" class="PushButtonInt">7 6</button>
+        <button type="button" class="PushButtonInt">8 7</button>
+        <button type="button" class="PushButtonInt">9 8</button>
+        <button type="button" class="PushButtonInt">0 9</button>
+        <button type="button" class="PushButtonInt">0 0</button>
     </div>
     <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
-        <button class="PushButtonInt">0 45 0</button>
-        <button class="PushButtonInt">1 45 50 </button>
-        <button class="PushButtonInt">2 45 200</button>
-        <button class="PushButtonInt">4 45 500</button>
-        <button class="PushButtonInt">4 45 1000 </button>
-        <button class="PushButtonInt">5 45 2000</button>
-        <button class="PushButtonInt">6 45 5000</button>
-        <button class="PushButtonInt">7 45 10000</button>
-        <button class="PushButtonInt">8 45 20000</button>
-        <button class="PushButtonInt">9 45 30000</button>
-        <button class="PushButtonInt">10 45 60000</button>
-        <button class="PushButtonInt">11 45 300000</button>
+        <button type="button" class="PushButtonInt">0 45 0</button>
+        <button type="button" class="PushButtonInt">1 45 50 </button>
+        <button type="button" class="PushButtonInt">2 45 200</button>
+        <button type="button" class="PushButtonInt">4 45 500</button>
+        <button type="button" class="PushButtonInt">4 45 1000 </button>
+        <button type="button" class="PushButtonInt">5 45 2000</button>
+        <button type="button" class="PushButtonInt">6 45 5000</button>
+        <button type="button" class="PushButtonInt">7 45 10000</button>
+        <button type="button" class="PushButtonInt">8 45 20000</button>
+        <button type="button" class="PushButtonInt">9 45 30000</button>
+        <button type="button" class="PushButtonInt">10 45 60000</button>
+        <button type="button" class="PushButtonInt">11 45 300000</button>
     </div>
+
+
+
 </body>
 </html>
