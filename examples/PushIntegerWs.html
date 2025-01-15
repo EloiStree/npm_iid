@@ -35,11 +35,12 @@
             
         <!--
         //  COPY THE NPM OR THE LOCAL BASED ON YOUR NEEDS
+
+            <script src="https://unpkg.com/iid42"></script>
             <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
             <script src="../index.js"></script>
         -->
-
-        <script src="https://cdn.jsdelivr.net/npm/iid42@latest"></script>
+        <script src="https://unpkg.com/iid42"></script>
         <script>
 
         IIDUtility.useLog = false;
@@ -128,7 +129,7 @@
 
             // Update the timestamp and offset every second
             setInterval(() => {
-                document.getElementById("IIDVERSION").textContent = `Version: ${IIDUtility.getVersion()}`;
+                document.getElementById("IIDVERSION").textContent = `Version: ${IIDUtility.checkVersion}`;
                 document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
                 document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
             }, 1000);
