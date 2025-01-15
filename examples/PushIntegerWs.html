@@ -133,7 +133,25 @@
                 document.getElementById("TIMESTAMP").textContent = `Timestamp: ${IIDUtility.getDateTimeNowNtpMsUTC()}`;
                 document.getElementById("OFFSET").textContent = `Offset: ${IIDUtility.getDefaultGlobalNtpOffsetInMilliseconds()}`;
             }, 1000);
+
+
+            document.getElementById('pushIntegerButton').addEventListener('click', () => {
+            const integerInput = document.getElementById('integerInput').value;
+            const indexInput = document.getElementById('indexInput').value;
+            const delayInput = document.getElementById('delayInput').value;
+            if (wsManager.isWebSocketConnected()) {
+                var bytes = IIDUtility.indexIntegerNowRelayMillisecondsToBytes(
+                    parseInt(indexInput), 
+                    parseInt(integerInput), 
+                    parseInt(delayInput));
+                wsManager.ws.send(bytes);
+            }
+             if (IIDUtility.useLog)
+                console.log(`Sent I: ${integerInput}`);
+             });
         });
+
+       
         </script>
 
 
@@ -142,10 +160,11 @@
 <body>
     
     <h1>IID Utility WebSocket Example</h1>
-    <p>This page uses an unsecured WebSocket. You need to allow it in your browser's settings.</p>
-    <p>For more information, visit: <a href="https://github.com/EloiStree/IID/issues/2">GitHub Issue</a></p>
-    <p>(Buttons don't work on Firefox. I'm not sure why, as I am a beginner in JavaScript.)</p>
-
+    <p><b>Manual: </b><a href="https://github.com/EloiStree/iid">https://github.com/EloiStree/iid</a> </p>
+    <p><b>NPM: </b><a href="https://www.npmjs.com/package/iid42">https://www.npmjs.com/package/iid42</a> </p>
+    <p></p>
+    <p><u>You need to allows unsecure websocket</u> , read about it: <a href="https://github.com/EloiStree/IID/issues/2">GitHub Issue</a></p>
+    
     <p id="IIDVERSION">VERSION</p>
     <p id="TIMESTAMP">TIMESTAMP</p>
     <p id="OFFSET">OFFSET</p>
@@ -203,6 +222,15 @@
         <button type="button" class="PushButtonInt">10 45 60000</button>
         <button type="button" class="PushButtonInt">11 45 300000</button>
     </div>
+
+    
+    <form id="integerForm"></form>
+        <label for="integerInput">Enter Integer:</label>
+        <input type="number" id="indexInput" name="indexInput" required>
+        <input type="number" id="integerInput" name="integerInput" required>
+        <input type="number" id="delayInput" name="delayInput" required>
+        <button type="button" id="pushIntegerButton">Push Integer</button>
+    </form>
 
 
 
