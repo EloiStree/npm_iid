@@ -13,7 +13,7 @@
 
 // Utility class for handling byte manipulations
 class IIDUtility {
-    static checkVersion="2025.1.150200";
+    static checkVersion="2025.1.21";
     static defaultGlobalNtpOffsetInMilliseconds = 0;
     static useLog = false;
     static isTextIpv4(serverName) {
@@ -331,8 +331,12 @@ class IIDWebSocketConnection {
                 byteInBlob = new Uint8Array(data);
         
                 this.notifyReceived(byteInBlob);
-            } else {
-                console.error("Unexpected data type:", typeof data);
+            } else if (data instanceof String){
+
+                console.log("String data:", data);
+            } 
+            else {
+                console.log("Unknown data type:", data);
             }
         };
 
